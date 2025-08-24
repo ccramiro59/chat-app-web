@@ -2,7 +2,7 @@
 
 
 
-A lightweight and responsive real-time chat application that allows users to communicate instantly across devices. Built for speed, simplicity, and scalability.
+A real-time chat application that allows users to communicate instantly across devices.
 
 
 
@@ -33,6 +33,4 @@ Backend: Nest
 Database: MongoDB
 
 Real-time: Socket.IO
-
-
 
