@@ -1,0 +1,40 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""User Class"""
+type User {
+  _id: ID
+  username: String!
+  emailAddress: String
+  firstName: String
+  lastName: String
+  displayName: String
+  dateOfBirth: DateTime
+  joinDate: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  users(page: Float! = 1, items: Float! = 100): [User!]!
+}
+
+type Mutation {
+  createUser(data: CreateUserDto!): User!
+}
+
+"""Create User Data Object"""
+input CreateUserDto {
+  username: String!
+  password: String!
+  emailAddress: String!
+  firstName: String
+  lastName: String
+  displayName: String
+  dateOfBirth: DateTime
+}
