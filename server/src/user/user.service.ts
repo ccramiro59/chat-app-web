@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from './entity/user.entity';
+import { ObjectId } from 'mongodb';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
-import { hash } from 'bcrypt';
+import { CreateUserDto } from './models/create-user.dto';
+import { UpdateUserDto } from './models/update-user.dto';
+import { User } from './models/user.entity';
 
 @Injectable()
 export class UserService {
@@ -10,10 +11,6 @@ export class UserService {
     @Inject('USER_REPOSITORY')
     private readonly repository: Repository<User>,
   ) {}
-
-  private async hashPassword(value: string): Promise<string> {
-    return hash(value, 10);
-  }
 
   async findAll({
     page,
@@ -28,9 +25,22 @@ export class UserService {
     });
   }
 
+  async findOne(_id: ObjectId): Promise<User | null> {
+    return this.repository.findOneBy({ _id });
+  }
+
   async createOne(dto: CreateUserDto): Promise<User> {
     const entity = this.repository.create(dto);
-    entity.password = await this.hashPassword(dto.password);
     return await this.repository.save(entity);
+  }
+
+  async updateOne(_id: ObjectId, dto: UpdateUserDto): Promise<User | null> {
+    const entity = await this.repository.preload({ _id, ...dto });
+    return entity ? this.repository.save(entity) : null;
+  }
+
+  async deleteOne(_id: ObjectId): Promise<number | null | undefined> {
+    const { affected } = await this.repository.delete({ _id });
+    return affected;
   }
 }

@@ -12,7 +12,7 @@ import { join } from 'path';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       graphiql: true,
-      autoSchemaFile: join(process.cwd(), 'src/schema.graphql'),
+      autoSchemaFile: join(process.cwd(), '/dist/src/schema.graphql'),
     }),
     UserModule,
   ],

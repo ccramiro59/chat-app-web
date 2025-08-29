@@ -1,31 +1,34 @@
-import { Transform } from 'class-transformer';
-import { isObjectId } from '../../common/utils/mongo.utils';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 
 import {
   Column,
   CreateDateColumn,
   Entity,
-  ObjectId,
   ObjectIdColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+import { IsOptional, Matches } from 'class-validator';
+import { ObjectId } from 'mongodb';
+
 @Entity()
 @ObjectType({ description: 'User Class' })
 export class User {
-  @Transform(
-    ({ value }) => {
-      if (isObjectId(value)) {
-        return value.toString();
-      }
-    },
-    { toPlainOnly: true },
-  )
-  @ObjectIdColumn()
-  @Field(() => ID, { nullable: true })
-  _id: ObjectId | null;
+  @Transform(({ value }: { value: ObjectId }) => value.toString(), {
+    toPlainOnly: true,
+  })
+  @ObjectIdColumn({ primary: true })
+  @Field(() => ID)
+  _id: ObjectId;
+
+  @Column({
+    type: 'enum',
+    enum: ['admin', 'standard'],
+    default: 'standard',
+  })
+  @Field()
+  type: string = 'standard';
 
   @Column({ unique: true, update: false })
   @Field()
@@ -51,9 +54,13 @@ export class User {
   @Field(() => String, { nullable: true })
   displayName: string | null;
 
-  @Column({ type: 'date', nullable: true })
-  @Field(() => Date, { nullable: true })
-  dateOfBirth: Date | null;
+  @Column({ length: 10, nullable: true })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Date must be in YYYY-MM-DD format',
+  })
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  dateOfBirth: string | null;
 
   @CreateDateColumn()
   @Field()

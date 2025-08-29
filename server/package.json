@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migration:run": "typeorm-ts-node-esm migration:run -d ./src/app.datasource.ts",
+    "migration:revert": "typeorm-ts-node-esm migration:revert -d ./src/app.datasource.ts",
+    "db:reset": "typeorm-ts-node-esm migration:revert -d ./src/app.datasource.ts && typeorm-ts-node-esm migration:run -d ./src/app.datasource.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",

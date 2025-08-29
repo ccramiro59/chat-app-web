@@ -1,14 +1,22 @@
 import {
-  Get,
-  Post,
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
   Query,
-  ValidationPipe,
 } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { userNotFound } from '../common/exceptions/user.exception';
+import { MongoIdPipe } from '../common/pipes/mongoid.pipe';
+import { CreateUserDto } from './models/create-user.dto';
+import { UpdateUserDto } from './models/update-user.dto';
+import { User } from './models/user.entity';
+import { UserPaginated } from './user.response';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -16,24 +24,49 @@ export class UserController {
 
   @Get()
   async findAll(
-    @Query(
-      new ValidationPipe({
-        transform: true,
-        whitelist: true,
-        forbidNonWhitelisted: true,
-      }),
-    )
+    @Query()
     query: PaginationDto,
-  ) {
-    const [data, count] = await this.userService.findAll(query);
+  ): Promise<UserPaginated> {
+    const [items, totalItems] = await this.userService.findAll(query);
+    return { items, totalItems };
+  }
 
-    return { data, count };
+  @Get(':id')
+  async findOne(@Param('id', new MongoIdPipe()) id: string): Promise<User> {
+    const user = await this.userService.findOne(new ObjectId(id));
+
+    if (!user) throw userNotFound();
+
+    return user;
   }
 
   @Post()
-  async createOne(
-    @Body(new ValidationPipe({ transform: true })) dto: CreateUserDto,
-  ) {
-    return await this.userService.createOne(dto);
+  async createOne(@Body() dto: CreateUserDto): Promise<User> {
+    return this.userService.createOne(dto);
+  }
+
+  @Put(':id')
+  async updateOne(
+    @Param('id', new MongoIdPipe()) id: string,
+    @Body() dto: UpdateUserDto,
+  ): Promise<User | null> {
+    const user = await this.userService.updateOne(new ObjectId(id), dto);
+
+    if (!user) throw userNotFound();
+
+    return user;
+  }
+
+  @Delete(':id')
+  async deleteOne(
+    @Param('id', new MongoIdPipe()) id: string,
+  ): Promise<{ affected: number }> {
+    const rowsAffected = await this.userService.deleteOne(new ObjectId(id));
+
+    if (typeof rowsAffected == 'number' && rowsAffected > 0) {
+      return { affected: rowsAffected };
+    }
+
+    throw userNotFound();
   }
 }

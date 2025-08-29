@@ -1,17 +1,10 @@
-import { DataSource } from 'typeorm';
+import AppDataSource from '../app.datasource';
 
 export const databaseProviders = [
   {
     provide: 'DATA_SOURCE',
     useFactory: async () => {
-      const datasource = new DataSource({
-        type: 'mongodb',
-        url: 'mongodb://localhost:27017/chatappdb',
-        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        synchronize: true,
-      });
-
-      return await datasource.initialize();
+      return await AppDataSource.initialize();
     },
   },
 ];
