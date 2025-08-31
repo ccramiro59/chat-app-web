@@ -34,8 +34,9 @@ export class UserController {
   @Get(':id')
   async findOne(@Param('id', new MongoIdPipe()) id: string): Promise<User> {
     const user = await this.userService.findOne(new ObjectId(id));
-
     if (!user) throw userNotFound();
+
+    console.log(user);
 
     return user;
   }

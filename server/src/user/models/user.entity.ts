@@ -2,6 +2,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Exclude, Transform } from 'class-transformer';
 
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,6 +12,7 @@ import {
 
 import { IsOptional, Matches } from 'class-validator';
 import { ObjectId } from 'mongodb';
+import { hashPassword } from 'src/common/utils/password.utils';
 
 @Entity()
 @ObjectType({ description: 'User Class' })
@@ -69,4 +71,9 @@ export class User {
   @UpdateDateColumn()
   @Field()
   updatedAt: Date;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await hashPassword(this.password);
+  }
 }
