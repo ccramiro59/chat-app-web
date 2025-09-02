@@ -7,6 +7,8 @@ import { UpdateUserDto } from './models/update-user.dto';
 import { User } from './models/user.entity';
 import { UserPaginated } from './user.response';
 import { UserService } from './user.service';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/auth/graphql-guard';
 
 @Resolver()
 export class UserResolver {
@@ -30,11 +32,13 @@ export class UserResolver {
     return this.service.findOne(new ObjectId(id));
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => User)
   async createUser(@Args('data') data: CreateUserDto) {
     return await this.service.createOne(data);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => User, { nullable: true })
   async updateUser(
     @Args('_id', new MongoIdPipe()) id: string,
@@ -43,6 +47,7 @@ export class UserResolver {
     return await this.service.updateOne(new ObjectId(id), data);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => Number)
   async deleteUser(@Args('_id', new MongoIdPipe()) id: string) {
     const result = await this.service.deleteOne(new ObjectId(id));

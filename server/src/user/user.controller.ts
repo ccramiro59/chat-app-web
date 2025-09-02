@@ -7,8 +7,12 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
+import express from 'express';
 import { ObjectId } from 'mongodb';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { userNotFound } from '../common/exceptions/user.exception';
 import { MongoIdPipe } from '../common/pipes/mongoid.pipe';
@@ -31,21 +35,28 @@ export class UserController {
     return { items, totalItems };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req: express.Request) {
+    return req.user;
+  }
+
   @Get(':id')
   async findOne(@Param('id', new MongoIdPipe()) id: string): Promise<User> {
     const user = await this.userService.findOne(new ObjectId(id));
-    if (!user) throw userNotFound();
 
-    console.log(user);
+    if (!user) throw userNotFound();
 
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async createOne(@Body() dto: CreateUserDto): Promise<User> {
     return this.userService.createOne(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateOne(
     @Param('id', new MongoIdPipe()) id: string,
@@ -58,6 +69,7 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteOne(
     @Param('id', new MongoIdPipe()) id: string,

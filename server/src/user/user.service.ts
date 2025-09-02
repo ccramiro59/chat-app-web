@@ -29,6 +29,10 @@ export class UserService {
     return this.repository.findOneBy({ _id });
   }
 
+  async findOneByUsername(username: string): Promise<User | null> {
+    return this.repository.findOneBy({ username });
+  }
+
   async createOne(dto: CreateUserDto): Promise<User> {
     const entity = this.repository.create(dto);
     return await this.repository.save(entity);

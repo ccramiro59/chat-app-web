@@ -12,7 +12,7 @@ import {
 
 import { IsOptional, Matches } from 'class-validator';
 import { ObjectId } from 'mongodb';
-import { hashPassword } from 'src/common/utils/password.utils';
+import { hashPassword } from '../../common/utils/password.utils';
 
 @Entity()
 @ObjectType({ description: 'User Class' })
@@ -32,6 +32,7 @@ export class User {
   @Field()
   type: string = 'standard';
 
+  @Exclude({ toPlainOnly: true })
   @Column({ unique: true, update: false })
   @Field()
   username: string;
